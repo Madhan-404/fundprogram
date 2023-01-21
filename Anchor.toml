@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-program = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+program = "FgGSSTdu28FdEGCQ77F5RyvWTRgC4qRGBhsMDH4pu2UW"
 
 [registry]
 url = "https://api.apr.dev"
