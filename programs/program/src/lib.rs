@@ -17,6 +17,11 @@ pub mod fund {
         msg!("Fund Description: {}", fund_description);
         msg!("Target Amount: {}", target_amount);
 
+        if target_amount < 30 {
+            msg!("Target Amount should be greater than 30 SOL");
+            return err!(ErrorCode::InvalidTargetAmount);
+        }
+
         let fund = &mut ctx.accounts.fund;
         fund.user_id = ctx.accounts.initializer.key();
         fund.fund_name = fund_name;
@@ -89,6 +94,12 @@ pub struct Close<'info>{
     fund: Account<'info, FundAccountState>,
     #[account(mut)]
     user_id: Signer<'info>,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Target Amount should be greater than 30 SOL")]
+    InvalidTargetAmount,
 }
 
 #[account]
