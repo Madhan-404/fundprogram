@@ -27,6 +27,14 @@ pub mod fund {
         fund.fund_name = fund_name;
         fund.fund_description = fund_description;
         fund.target_amount = target_amount;
+
+
+        // Like Counter Account
+        msg!("Like Counter Account Created");
+        let like_counter = &mut ctx.accounts.like_counter;
+        like_counter.like_count = 0;
+        msg!("Likes: {}", like_counter.like_count);
+
         Ok(())
     }
 
@@ -51,6 +59,22 @@ pub mod fund {
         Ok(())
     }
 
+    pub fn like_fund(ctx: Context<LikeFund>) -> Result<()> {
+        msg!("Fund Liked");
+        let like_counter = &mut ctx.accounts.like_counter;
+        like_counter.like_count += 1;
+        msg!("Likes: {}", like_counter.like_count);
+        Ok(())
+    }
+
+    pub fn unlike_fund(ctx: Context<LikeFund>) -> Result<()> {
+        msg!("Fund Unliked");
+        let like_counter = &mut ctx.accounts.like_counter;
+        like_counter.like_count -= 1;
+        msg!("Likes: {}", like_counter.like_count);
+        Ok(())
+    }
+
 }
 
 #[derive(Accounts)]
@@ -65,6 +89,8 @@ pub struct CreateFund<'info> {
     )]
 
     pub fund: Account<'info, FundAccountState>,
+    #[account(mut)]
+    pub like_counter: Account<'info, LikeCounter>,
     #[account(mut)]
     pub initializer: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -96,6 +122,22 @@ pub struct Close<'info>{
     user_id: Signer<'info>,
 }
 
+#[derive(Accounts)]
+#[instruction(fund_name:String)]
+pub struct LikeFund<'info> {
+    #[account(
+        init,
+        seeds = [fund_name.as_bytes(), user_id.key().as_ref()],
+        bump,
+        payer = user_id,
+        space = 8 + 8,
+    )]
+    pub like_counter: Account<'info, LikeCounter>,
+    #[account(mut)]
+    pub user_id: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
 #[error_code]
 pub enum ErrorCode {
     #[msg("Target Amount should be greater than 30 SOL")]
@@ -110,4 +152,7 @@ pub struct FundAccountState {
     pub target_amount: u64, //8
 }
 
-   
+#[account]
+pub struct LikeCounter {
+    pub like_count: u64,
+}
